@@ -40,8 +40,8 @@ output "get_credentials_command" {
 
 output "node_pools" {
   description = "Created node pool names"
-  value = concat(
-    [google_container_node_pool.system.name, google_container_node_pool.application.name],
-    var.enable_gpu_pool ? [google_container_node_pool.gpu[0].name] : [],
-  )
+  value = [
+    google_container_node_pool.system.name,
+    google_container_node_pool.application.name,
+  ]
 }

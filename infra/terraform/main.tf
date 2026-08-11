@@ -106,7 +106,8 @@ resource "google_container_cluster" "primary" {
   node_config {
     disk_size_gb = 30
     disk_type    = "pd-standard"
-    spot         = true 
+    spot         = true
+  }
 
   networking_mode = "VPC_NATIVE"
   
@@ -167,7 +168,6 @@ resource "google_container_cluster" "primary" {
   }
 
   deletion_protection = false
-  }
 }
 
 # Allow control plane to communicate with nodes
