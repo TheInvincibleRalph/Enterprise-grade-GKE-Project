@@ -1,0 +1,49 @@
+# Replace kube-proxy with eBPF datapath
+kubeProxyReplacement: true
+
+# Transparent pod-to-pod encryption
+encryption:
+  enabled: true
+  type: wireguard
+
+# Network observability
+hubble:
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+
+# GKE uses alias IP (VPC-native) — Cilium picks up pod CIDR from the cluster
+ipam:
+  mode: kubernetes
+
+routingMode: native
+ipv4NativeRoutingCIDR: 10.0.0.0/8
+
+# GKE compatibility
+gke:
+  enabled: true
+
+
+cni:
+  binPath: /home/kubernetes/bin
+
+# Allow scheduling on nodes with CriticalAddonsOnly taint (system pool)
+tolerations:
+  - operator: Exists
+
+# Run on all nodes including system pool
+nodeSelector:
+  kubernetes.io/os: linux
+
+operator:
+  replicas: 2
+
+# Enable Prometheus metrics for observability
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: false # we will enable this when Prometheus is installed.
+
+k8sServiceHost: ""
+k8sServicePort: 443
