@@ -1,0 +1,120 @@
+# Phase 3.3 — Inference queue infrastructure
+# Redis (the queue backend) + inference-api (enqueues jobs, exposes /infer,
+# /result/<id>, /health). Apply with: kubectl apply -f <this file>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: ai-inference
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: ai-inference
+spec:
+  selector:
+    app: redis
+  ports:
+    - port: 6379
+---
+# API gateway that enqueues requests into Redis
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inference-api
+  namespace: ai-inference
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: inference-api
+  template:
+    metadata:
+      labels:
+        app: inference-api
+    spec:
+      containers:
+        - name: api
+          image: python:3.12-slim
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              pip install flask redis &&
+              cat > /app.py << 'PYEOF'
+              from flask import Flask, request, jsonify
+              import redis, json, uuid
+              app = Flask(__name__)
+              r = redis.Redis(host='redis.ai-inference.svc.cluster.local', port=6379)
+
+              @app.route('/infer', methods=['POST'])
+              def infer():
+                  data = request.json
+                  task_id = str(uuid.uuid4())
+                  task = json.dumps({'id': task_id, 'prompt': data['prompt']})
+                  r.lpush('inference_queue', task)
+                  return jsonify({'task_id': task_id, 'status': 'queued'})
+
+              @app.route('/result/<task_id>')
+              def result(task_id):
+                  res = r.get(f'result:{task_id}')
+                  if res:
+                      return jsonify(json.loads(res))
+                  return jsonify({'status': 'processing'}), 202
+
+              @app.route('/health')
+              def health():
+                  return jsonify({
+                      'status': 'ok',
+                      'queue_length': r.llen('inference_queue')
+                  })
+
+              app.run(host='0.0.0.0', port=8080)
+              PYEOF
+              python /app.py
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inference-api
+  namespace: ai-inference
+spec:
+  selector:
+    app: inference-api
+  ports:
+    - port: 8080

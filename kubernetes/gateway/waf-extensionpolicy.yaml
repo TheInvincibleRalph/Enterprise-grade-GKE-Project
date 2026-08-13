@@ -1,0 +1,22 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyExtensionPolicy
+metadata:
+  name: waf-extension
+  namespace: envoy-gateway-system
+  labels:
+    app.kubernetes.io/part-of: devops-portfolio
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: boutique-gateway
+  dynamicModule:
+    - name: composer
+      filterName: coraza-waf
+      config:
+        directives:
+          - Include @coraza.conf
+          - SecRuleEngine On
+          - SecResponseBodyAccess Off
+          - Include @crs-setup.conf
+          - Include @owasp_crs/*.conf

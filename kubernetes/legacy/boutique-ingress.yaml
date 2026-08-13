@@ -1,0 +1,31 @@
+# ⚠️ SUPERSEDED — Online Boutique Ingress (Phase 1.4, original)
+#
+# Replaced by the Gateway API (kubernetes/gateway/httproute.yaml):
+#   Ingress  →  HTTPRoute
+#   nginx.ingress.kubernetes.io/ssl-redirect  →  Cloudflare TLS termination
+# Kept as the "before" state for the migration course milestone.
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: boutique-ingress
+  namespace: boutique
+  labels:
+    app.kubernetes.io/part-of: devops-portfolio
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/modsecurity-snippet: |
+      SecRuleEngine On
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: boutique.example.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80

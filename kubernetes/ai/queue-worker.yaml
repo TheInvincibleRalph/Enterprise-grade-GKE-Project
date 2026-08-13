@@ -1,0 +1,52 @@
+# Phase 3.3 — Inference queue worker
+# Pops jobs from Redis (inference_queue), calls Ollama, writes the result
+# back as result:<task_id>. Single replica is enough for the demo — the
+# OLLAMA deployment is the one KEDA scales (see scaledobject.yaml).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue-worker
+  namespace: ai-inference
+  labels:
+    app: queue-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: queue-worker
+  template:
+    metadata:
+      labels:
+        app: queue-worker
+    spec:
+      containers:
+        - name: worker
+          image: python:3.12-slim
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              pip install redis &&
+              cat > /worker.py << 'PYEOF'
+              import redis, json, time, urllib.request
+              r = redis.Redis(host='redis.ai-inference.svc.cluster.local', port=6379)
+              while True:
+                  item = r.brpop('inference_queue', timeout=5)
+                  if not item:
+                      continue
+                  task = json.loads(item[1])
+                  req = urllib.request.Request(
+                      'http://ollama:11434/api/generate',
+                      data=json.dumps({'model': 'llama3.2:3b', 'prompt': task['prompt'], 'stream': False}).encode(),
+                      headers={'Content-Type': 'application/json'})
+                  resp = json.loads(urllib.request.urlopen(req, timeout=300).read())
+                  r.set(f"result:{task['id']}",
+                        json.dumps({'id': task['id'], 'response': resp.get('response', '')}))
+              PYEOF
+              python /worker.py
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

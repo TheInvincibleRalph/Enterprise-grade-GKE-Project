@@ -1,0 +1,45 @@
+# CloudNativePG Cluster — Phase 2.1
+# HA PostgreSQL: 1 leader + 2 replicas, spread across zones.
+#
+# Schema notes (validated against the installed CRD, CNPG 1.24):
+#   - spec.storage uses `size`, NOT `storageSize`
+#   - spec.backup.retentionPolicy is a SIBLING of barmanObjectStore, not a
+#     field inside it
+#   - anti-affinity is `affinity.enablePodAntiAffinity` + `topologyKey`,
+#     not a raw Kubernetes podAntiAffinity block
+#   - no googleCredentials block on purpose: barman falls back to the pod's
+#     default credentials (GKE Workload Identity — pg-backup-sa bound to the
+#     database/default SA, see README §2.1b). No JSON key anywhere.
+#
+# Trial fit: 1-vCPU nodes, so CPU requests are kept small (250m) — a 1000m
+# request would pin each DB pod to a whole node and strand replicas as Pending.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: ha-postgres
+  namespace: database
+spec:
+  instances: 3
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.4
+
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: "topology.kubernetes.io/zone"
+
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+  storage:
+    size: "1Gi"
+
+  backup:
+    retentionPolicy: "30d"
+    barmanObjectStore:
+      destinationPath: "gs://devops-portfolio-backups/postgres"
+      wal:
+        compression: gzip

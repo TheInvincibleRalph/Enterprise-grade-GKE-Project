@@ -1,0 +1,35 @@
+# Docs: https://gateway.envoyproxy.io/latest/tasks/extensibility/dynamic-modules/
+
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: envoy-proxy
+  namespace: envoy-gateway-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyDeployment:
+        pod:
+          volumes:
+            - name: dynamic-modules
+              image:
+                reference: ghcr.io/tetratelabs/built-on-envoy/composer:0.6.0
+                pullPolicy: IfNotPresent
+        container:
+          env:
+            # Required by the CGO-based Coraza module
+            - name: GODEBUG
+              value: "cgocheck=0"
+          volumeMounts:
+            - name: dynamic-modules
+              mountPath: /etc/envoy/dynamic-modules
+              readOnly: true
+  dynamicModules:
+    - name: composer
+      source:
+        type: Local
+        local:
+          path: /etc/envoy/dynamic-modules/libcomposer.so
+      doNotClose: true
+      loadGlobally: false

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: boutique
+  labels:
+    app.kubernetes.io/part-of: devops-portfolio
+    app.kubernetes.io/phase: "1"
