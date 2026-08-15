@@ -7,6 +7,11 @@ spec:
   instances: 3
   imageName: ghcr.io/cloudnative-pg/postgresql:16.4
 
+  postgresql:
+    synchronous:
+      method: any
+      number: 1
+
   affinity:
     enablePodAntiAffinity: true
     topologyKey: "topology.kubernetes.io/zone"
