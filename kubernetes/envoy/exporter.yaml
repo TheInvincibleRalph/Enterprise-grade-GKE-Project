@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: envoy-admin-metrics
+  namespace: envoy-gateway-system
+  labels:                                # required: SM selector matches on these
+    app.kubernetes.io/name: envoy
+    app.kubernetes.io/component: proxy
+spec:
+  selector:
+    app.kubernetes.io/name: envoy
+    app.kubernetes.io/component: proxy
+  ports:
+    - name: metrics
+      port: 19000
+      targetPort: 19001
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: envoy-metrics
+  namespace: envoy-gateway-system
+  labels:                                # required: Prometheus selects SMs by release label
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: envoy      
+      app.kubernetes.io/component: proxy 
+  endpoints:
+    - port: metrics
+      path: /stats/prometheus
+      interval: 30s
