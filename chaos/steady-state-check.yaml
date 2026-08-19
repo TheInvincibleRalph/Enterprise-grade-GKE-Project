@@ -1,0 +1,21 @@
+# Steady-state hypothesis (Phase 4.2) — as a ConfigMap, so the SLOs are
+# versioned in the repo and apply-able. These are the targets to measure
+# BEFORE and AFTER each chaos experiment.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: steady-state-check
+  namespace: chaos-mesh
+data:
+  boutique_app: |
+    p99_latency: "< 500ms"
+    error_rate: "< 1%"
+    availability: "> 99.5%"
+  postgres: |
+    replication_lag: "< 100ms"
+    failover_time: "< 30s"
+    data_loss: "0"
+  ai_inference: |
+    queue_processing_rate: "> 5 req/s"
+    cold_start_time: "< 60s"
+    cpu_utilization: "< 85% (with autoscaling)"

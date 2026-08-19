@@ -1,0 +1,22 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: db-network-delay
+  namespace: chaos-mesh
+spec:
+  action: delay
+  mode: all
+  selector:
+    namespaces:
+      - database
+    labelSelectors:
+      cnpg.io/cluster: ha-postgres
+  delay:
+    latency: "500ms"         # Insert 500ms latency
+    correlation: "50"
+    jitter: "100ms"
+  duration: "120s"
+  # `to` (not `both`): the netem webhook requires a `targets` list for
+  # `from`/`both`, and `to` is exactly the semantics we want — delay
+  # traffic arriving at the Postgres pods (client -> db).
+  direction: to

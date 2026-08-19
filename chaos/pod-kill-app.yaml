@@ -1,0 +1,19 @@
+# chaos/pod-kill-app.yaml
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: kill-boutique-pods
+  namespace: chaos-mesh
+spec:
+  action: pod-kill
+  mode: fixed-percent
+  value: "50"                # Kill 50% of pods
+  selector:
+    namespaces:
+      - boutique
+    labelSelectors:
+      app: frontend
+  duration: "60s"            # Keep killing for 60 seconds
+  # NOTE: no `scheduler` field — the installed Chaos Mesh CRD version does
+  # not support it (accepted fields: action, containerNames, duration,
+  # gracePeriod, mode, remoteCluster, selector, value)
