@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Phase 4.6 — Node failure simulation (zone failure) by draining a node.
 # This is an OPERATIONAL script (not a Chaos Mesh manifest): cordon + drain
-# is the realistic way to simulate a node/zone loss.
+# and is the realistic way to simulate a node/zone loss.
 #
 # Usage: ./chaos/node-drain.sh [NODE_NAME]   (defaults to an application node)
 set -euo pipefail
