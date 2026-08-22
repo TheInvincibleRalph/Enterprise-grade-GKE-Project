@@ -104,13 +104,13 @@ The inference subsystem has its own flow (submit, queue, process, poll) and is d
 Security is layered, and each layer assumes the one above it may have failed:
 
 1. **Private cluster**: nodes without public IPs, a private control plane, Cloud NAT for egress; there is no route from the internet to a node.
-2. **Identity and org policy**: service account key creation is disabled by organization policy; all Terraform authentication uses impersonation with short-lived tokens; one emergency key exists on the author's machine only; a stolen key is useless without network access to the project.
+2. **Identity and org policy**: every authenticated step uses service account impersonation with short-lived tokens.
 3. **RBAC**: a dedicated cluster management service account with a scoped ClusterRole binding, so tooling runs with least privilege (`kubernetes/rbac.yaml`).
 4. **Network encryption**: Cilium WireGuard encrypts every node-to-node packet transparently; verified by capturing traffic on the wire; application traffic stays unreadable even from a compromised host.
 5. **Edge filtering**: one LoadBalancer IP in front, Envoy Gateway routing, and the Coraza WAF with the OWASP CRS in the proxy process; `waf-test.sh` blocks 5 of 5 attack classes and a full OWASP ZAP scan is part of the pipeline; attacks die at the edge before any service code runs.
 6. **Cloudflare**: proxied DNS hides the origin IP and terminates TLS; the origin runs plain HTTP behind the proxy (Flexible mode), which is an honest trade-off on this trial cluster.
 7. **Repository hygiene**: `.gitignore` excludes Terraform state, service account keys, and credentials; nothing secret has ever been committed to this repository.
-8. **Budget kill switch**: a gen2 Cloud Function triggered by the Pub/Sub budget alert stops every instance at 95% of the budget; a runaway bill caps itself.
+8. **Budget kill switch**: a gen2 Cloud Function triggered by the Pub/Sub budget alert stops every instance at 95% of the budget.
 
 ## Autoscaling
 
@@ -213,7 +213,7 @@ Three layers watch the same cluster, each from a different angle:
 
 ### Prerequisites & Configuration
 
-Before building, you need: `gcloud`, `kubectl`, helm, terraform, and the Cilium CLI installed; a Cloudflare account with a domain; a GCP organization identity (Cloud Identity) with a project and a billing account; and the state bucket created (`gcloud storage buckets create gs://devops-portfolio-tfstate/ --uniform-bucket-level-access`).
+Before building, you need: `gcloud`, `kubectl`, `helm`, `terraform`, and the Cilium CLI installed; a Cloudflare account with a domain; a GCP organization identity (Cloud Identity) with a project and a billing account; and the state bucket created (`gcloud storage buckets create gs://devops-portfolio-tfstate/ --uniform-bucket-level-access`).
 
 #### 1. GCP Project ID
 
@@ -228,13 +228,13 @@ Replace all instances of `devops-portfolio-prod` with your project ID in the fol
 
 Replace all instances of `boutique.invincibledevops.tech` with your domain in the following files:
 
-- `kubernetes/gateway/httproute.yaml` (Line 14)
+- `kubernetes/gateway/httproute.yaml`
 
 Then create a proxied A record at Cloudflare pointing at the Load Balancer IP printed by `scripts/install-envoy-gateway.sh`, with SSL mode set to Flexible. `scripts/deploy-boutique.sh` applies the route with `BOUTIQUE_HOST=<your-domain> ./scripts/deploy-boutique.sh`.
 
 #### 3. GCP Service Accounts
 
-The Terraform service account is `terraform-sa@devops-portfolio-prod.iam.gserviceaccount.com`. It is granted the roles it needs in Phase 0 of the tutorial, and every terraform command authenticates through impersonation, which needs no key:
+The Terraform service account is `terraform-sa@devops-portfolio-prod.iam.gserviceaccount.com`. It is granted the roles it needs in Part-2 of this project, and every terraform command authenticates through impersonation, which needs no key:
 
 ```bash
 gcloud auth application-default login \
@@ -346,27 +346,25 @@ gcloud functions deploy budget-kill-switch \
 
 ## Blog Series
 
-The project is documented as a hands-on engineering series, one post per part of the build. Paste the Medium URL for each post into the link column.
+The project is documented as a hands-on engineering series, one post per part of the build.
 
 | # | Title | Medium link |
 |---|---|---|
 | 1 | Building an Enterprise-Grade Kubernetes Ecosystem on GKE | _[Part-1](https://medium.com/@theinvincibledev/building-an-enterprise-grade-kubernetes-ecosystem-on-gke-d52102d912a7?sharedUserId=theinvincibledev)_ |
-| 2 | Setting Up Your Environment, Prerequisites, and Cost Optimization | _paste link here_ |
-| 3 | Provisioning a Private, Multi-Zone GKE Cluster with Terraform | _paste link here_ |
-| 4 | [Part 4] Deploying Cilium: eBPF Networking, WireGuard Encryption, and Hubble Observability. | _paste link here_ |
-| 5 | Configuring the Cluster's Edge: Envoy Gateway with an In-Process Coraza WAF & Deploying a Microservices Application Behind the Web Application Firewall. | _paste link here_ |
-| 6 | [Part 6] Deploying a Highly Available PostgreSQL on Kubernetes with CloudNativePG, Load Testing It and Proving Failover Mechanism | _paste link here_ |
-| 7 | [Part 7] Observability: Prometheus, Grafana, and Datadog | _paste link here_ |
-| 8 | [Part 8][Optional] Observability with Datadog | _paste link here_ |
-| 9 | [Part 9] Chaos Engineering with Chaos Mesh | _paste link here_ |
-| 10 | [Part 10] Deploying an Ollama Inference Server on GKE with KEDA | _paste link here_ |
+| 2 | Setting Up Your Environment, Prerequisites, and Cost Optimization | _[Part-2](https://medium.com/@theinvincibledev/part-2-setting-up-your-environment-prerequisites-and-cost-optimization-64d3c4b9bbf7)_ |
+| 3 | Provisioning a Private, Multi-Zone GKE Cluster with Terraform | _[Part-3](https://medium.com/@theinvincibledev/part-3-provisioning-a-private-multi-zone-gke-cluster-with-terraform-d1499ece7177)_ |
+| 4 | Deploying Cilium: eBPF Networking, WireGuard Encryption, and Hubble Observability. | _[Part-4](https://medium.com/@theinvincibledev/part-4-deploying-cilium-ebpf-networking-wireguard-encryption-and-hubble-observability-360a9bec2dab)_ |
+| 5 | Configuring the Cluster's Edge: Envoy Gateway with an In-Process Coraza WAF & Deploying a Microservices Application Behind the Web Application Firewall. | _[Part-5](https://medium.com/@theinvincibledev/part-5-configuring-the-clusters-edge-envoy-gateway-with-an-in-process-coraza-waf-deploying-a-5797dd62b092)_ |
+| 6 | Deploying a Highly Available PostgreSQL on Kubernetes with CloudNativePG, Load Testing It and Proving Failover Mechanism | _[Part-6](https://medium.com/@theinvincibledev/part-6-deploying-a-highly-available-postgresql-on-kubernetes-with-cloudnativepg-load-testing-it-92b64a304393)_ |
+| 7 | Observability with Prometheus, & Grafana | _[Part-7](https://medium.com/@theinvincibledev/part-7-observability-with-prometheus-grafana-b5159196d598)_ |
+| 8 | Observability with Datadog | _[Part-8](https://medium.com/@theinvincibledev/part-8-optional-observability-with-datadog-e8562102988e)_ |
+| 9 | Chaos Engineering with Chaos Mesh | _[Part-9](https://medium.com/@theinvincibledev/part-9-chaos-engineering-with-chaos-mesh-80956e7f4236)_ |
+| 10 | [Part 10] Deploying an Ollama Inference Server on GKE with KEDA | _[Part-10](https://medium.com/@theinvincibledev/part-10-deploying-an-ollama-inference-server-on-gke-with-keda-7c89a4081461)_ |
 | 11 | [Part 11] Project Wrap-Up: What We Built, the Full Teardown, and the Portfolio Value | _paste link here_ |
 
 ## ⚠️ Known Limitations
 
-Honest scope notes, because this is a trial-budget project:
-
-- **Hardware**: 6 spot nodes, no GPUs, and the application pool runs in the `e2` family. The model server runs llama3.2:3b on CPU at 2 to 5 tokens per second, one prompt at a time. A GPU node pool is defined in Terraform but not deployed.
+- **Hardware**: 6 spot nodes, no GPUs, and the application pool runs in the `e2` family. The model server runs llama3.2:3b on CPU at 2 to 5 tokens per second, one prompt at a time.
 - **Scale**: the AI deployment is capped at 1 replica by the ReadWriteOnce model disk; scaling out would need a shared model store.
 - **Spot churn**: nodes are preemptible; the cluster absorbs it (the node drain experiment proves it), but pod restarts are expected behavior.
 - **Origin TLS**: Cloudflare terminates TLS and the origin runs plain HTTP behind the proxy (Flexible mode); the WAF still sees every request at the gateway.
