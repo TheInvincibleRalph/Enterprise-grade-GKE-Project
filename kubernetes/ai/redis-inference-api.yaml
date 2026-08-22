@@ -1,7 +1,3 @@
-# Phase 3.3 — Inference queue infrastructure
-# Redis (the queue backend) + inference-api (enqueues jobs, exposes /infer,
-# /result/<id>, /health). Apply with: kubectl apply -f <this file>
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
