@@ -350,7 +350,7 @@ The project is documented as a hands-on engineering series, one post per part of
 
 | # | Title | Medium link |
 |---|---|---|
-| 1 | Building an Enterprise-Grade Kubernetes Ecosystem on GKE | _paste link here_ |
+| 1 | Building an Enterprise-Grade Kubernetes Ecosystem on GKE | _[Part-1](https://medium.com/@theinvincibledev/building-an-enterprise-grade-kubernetes-ecosystem-on-gke-d52102d912a7?sharedUserId=theinvincibledev)_ |
 | 2 | Setting Up Your Environment, Prerequisites, and Cost Optimization | _paste link here_ |
 | 3 | Provisioning a Private, Multi-Zone GKE Cluster with Terraform | _paste link here_ |
 | 4 | [Part 4] Deploying Cilium: eBPF Networking, WireGuard Encryption, and Hubble Observability. | _paste link here_ |
