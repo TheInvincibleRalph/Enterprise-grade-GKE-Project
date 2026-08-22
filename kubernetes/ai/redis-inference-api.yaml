@@ -73,7 +73,11 @@ spec:
 
               @app.route('/result/<task_id>')
               def result(task_id):
-                  res = r.get(f'result:{task_id}')
+                  try:
+                      res = r.get(f'result:{task_id}')
+                  except Exception:
+                      # Redis briefly unreachable: 503 means "try again" for the client.
+                      return jsonify({'status': 'unavailable'}), 503
                   if res:
                       return jsonify(json.loads(res))
                   return jsonify({'status': 'processing'}), 202

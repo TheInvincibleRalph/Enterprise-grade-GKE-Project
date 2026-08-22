@@ -37,7 +37,7 @@ spec:
                           continue
                       task = json.loads(item)
                       resp = None
-                      for attempt in range(6):
+                      for attempt in range(20):
                           try:
                               req = urllib.request.Request(
                                   'http://ollama:11434/api/generate',
@@ -46,10 +46,15 @@ spec:
                               resp = json.loads(urllib.request.urlopen(req, timeout=300).read())
                               break
                           except Exception as e:
-                              # Ollama can be cold (pod starting, model loading): retry with backoff
-                              if attempt == 5:
+                              # Ollama can be cold (pod starting, model loading, node churn).
+                              # The job stays in the processing list during the wait, which
+                              # keeps the deployment alive, so this retry window is the
+                              # cold start itself.
+                              if attempt == 0:
+                                  print("model not ready yet, waiting (job stays in the processing list)", flush=True)
+                              if attempt == 19:
                                   raise RuntimeError(f"ollama call failed after retries: {e}")
-                              time.sleep(3 * (attempt + 1))
+                              time.sleep(min(30, 3 * (attempt + 1)))
                       r.set(f"result:{task['id']}",
                             json.dumps({'id': task['id'], 'response': resp.get('response', '')}))
                       answered = True
