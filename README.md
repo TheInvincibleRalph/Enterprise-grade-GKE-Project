@@ -1,3 +1,5 @@
+<div align="center">
+
 # Enterprise-Grade GKE Platform
 
 ![Google Cloud](https://img.shields.io/badge/Google%20Cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)
@@ -11,6 +13,8 @@
 ![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white)
 ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)
 ![Datadog](https://img.shields.io/badge/Datadog-632CA6?style=for-the-badge&logo=datadog&logoColor=white)
+
+</div>
 
 A production-grade cloud platform built on Google Kubernetes Engine. It implements the operations an enterprise platform team runs on a private multi-zone cluster: eBPF networking with encrypted pod traffic, a WAF-protected edge, highly available PostgreSQL, enterprise observability, chaos engineering, and an inference server that scales to zero when idle. Everything runs inside a GCP free-trial budget, so the cost engineering is part of the design.
 
