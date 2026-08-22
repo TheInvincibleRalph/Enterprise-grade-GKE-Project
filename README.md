@@ -42,7 +42,11 @@ Most DevOps portfolios stop at deploying a standalone and isolated app on Kubern
 
 The entire project is built, documented, and torn down inside the walls of a $300 GCP free trial, which is a sufficient canvas to draw our robust infrastructure upon, and also informs some infrastructural decisions.
 
-## 👤 Who It Is For
+## Who It Is For
+
+- **DevOps Enthusiast**: if you are learning infrastructure, this is the build, documented step by step in an 11-part series and reproducible on a free trial account with the commands and scripts in this repo.
+- **DevOps and Platform Engineers**: if you run production infrastructure, this is a reference architecture you can always revisit to challenge yourself and keep your skill set updated.
+- **Interview candidates**: if you are preparing for DevOps or platform interviews, this repo gives you practical insight into areas you could be tested on: a failover with zero lost writes, a WAF proven against live attacks, and a scale-to-zero model server, each reproducible on demand.
 
 - **Platform and DevOps engineers**: a reference architecture for a storefront plus a stateful database plus an event-driven AI workload on one cluster, with every manifest versioned.
 - **Early DevOps Enthusiast**: the same build as an 11-part hands-on series, so each part can be followed and verified on your own trial account.
