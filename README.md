@@ -360,7 +360,7 @@ The project is documented as a hands-on engineering series, one post per part of
 | 8 | Observability with Datadog | _[Part-8](https://medium.com/@theinvincibledev/part-8-optional-observability-with-datadog-e8562102988e)_ |
 | 9 | Chaos Engineering with Chaos Mesh | _[Part-9](https://medium.com/@theinvincibledev/part-9-chaos-engineering-with-chaos-mesh-80956e7f4236)_ |
 | 10 | [Part 10] Deploying an Ollama Inference Server on GKE with KEDA | _[Part-10](https://medium.com/@theinvincibledev/part-10-deploying-an-ollama-inference-server-on-gke-with-keda-7c89a4081461)_ |
-| 11 | [Part 11] Project Wrap-Up: What We Built, the Full Teardown, and the Portfolio Value | _paste link here_ |
+| 11 | [Part 11] Project Wrap-Up: What We Built, the Full Teardown, and the Portfolio Value | _coming soon_ |
 
 ## ⚠️ Known Limitations
 
