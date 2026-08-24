@@ -44,9 +44,8 @@ The entire project is built, documented, and torn down inside the walls of a $30
 
 ## 👤 Who It Is For
 
-- **Platform and DevOps engineers**: a reference architecture for a storefront plus a stateful database plus an event-driven AI workload on one cluster, with every manifest versioned.
-- **Early DevOps Enthusiast**: the same build as an 11-part hands-on series, so each part can be followed and verified on your own trial account.
-- **Rebuilders**: anyone with a GCP trial, a domain, and the scripts in this repo can stand the whole thing up in an afternoon.
+- **DevOps Enthusiast**: if you are learning infrastructure, this is the build, documented step by step in an 11-part series and reproducible on a free trial account with the commands and scripts in this repo.
+- **DevOps and Platform Engineers**: if you run production infrastructure, this is a reference architecture you can reuse: every manifest versioned, every procedure verified, and the failures that cost time documented in the troubleshooting guide.
 
 ## Tech Stack
 
@@ -104,7 +103,7 @@ The inference subsystem has its own flow (submit, queue, process, poll) and is d
 Security is layered, and each layer assumes the one above it may have failed:
 
 1. **Private cluster**: nodes without public IPs, a private control plane, Cloud NAT for egress; there is no route from the internet to a node.
-2. **Identity and org policy**: service account key creation is disabled by organization policy; all Terraform authentication uses impersonation with short-lived tokens; one emergency key exists on the author's machine only; a stolen key is useless without network access to the project.
+2. **Identity and org policy**: every authenticated step uses service account impersonation with short-lived tokens.
 3. **RBAC**: a dedicated cluster management service account with a scoped ClusterRole binding, so tooling runs with least privilege (`kubernetes/rbac.yaml`).
 4. **Network encryption**: Cilium WireGuard encrypts every node-to-node packet transparently; verified by capturing traffic on the wire; application traffic stays unreadable even from a compromised host.
 5. **Edge filtering**: one LoadBalancer IP in front, Envoy Gateway routing, and the Coraza WAF with the OWASP CRS in the proxy process; `waf-test.sh` blocks 5 of 5 attack classes and a full OWASP ZAP scan is part of the pipeline; attacks die at the edge before any service code runs.

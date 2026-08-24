@@ -1,0 +1,25 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+!*.tfvars.example
+.terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+
+# Credentials — never commit
+terraform-key.json
+*.json.key
+credentials.json
+
+# OWASP ZAP reports
+zap_report.html
+zap_full_report.html
+chaos_zap_report.html
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
