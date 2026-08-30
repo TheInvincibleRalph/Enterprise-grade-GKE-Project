@@ -12,6 +12,14 @@ kubectl apply -f "${BOUTIQUE_DIR}/namespace.yaml"
 echo "==> Deploying Online Boutique manifests"
 kubectl apply -f "${MANIFESTS_URL}" -n boutique
 
+echo "==> Applying repo-managed boutique overrides"
+for manifest in "${BOUTIQUE_DIR}"/*.yaml; do
+  if [[ "$(basename "${manifest}")" == "namespace.yaml" ]]; then
+    continue
+  fi
+  kubectl apply -f "${manifest}"
+done
+
 echo "==> Waiting for frontend deployment"
 kubectl rollout status deployment/frontend -n boutique --timeout=5m
 
