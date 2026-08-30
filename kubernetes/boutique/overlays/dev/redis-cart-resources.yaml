@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-cart
+  labels:
+    app: redis-cart
+    app.kubernetes.io/part-of: online-boutique
+    consize.dev/iac-source: kubernetes-yaml
+    consize.dev/container: redis
+spec:
+  template:
+    metadata:
+      labels:
+        app: redis-cart
+        consize.dev/container: redis
+    spec:
+      containers:
+        - name: redis
+          resources:
+            requests:
+              cpu: 70m
+              memory: 140Mi
+            limits:
+              cpu: 125m
+              memory: 179Mi

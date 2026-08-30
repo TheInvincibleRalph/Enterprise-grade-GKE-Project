@@ -188,7 +188,11 @@ Three layers watch the same cluster, each from a different angle:
 │       └── variables.tf
 ├── kubernetes/
 │   ├── ai/                         
-│   ├── boutique/                   
+│   ├── boutique/
+│   │   ├── base/                   # pinned Google Online Boutique manifest
+│   │   ├── overlays/dev/           # repo-owned patches used by Consize PRs
+│   │   ├── kustomization.yaml
+│   │   └── namespace.yaml
 │   ├── cilium/                     
 │   ├── cnpg/                       
 │   ├── envoy/                      
@@ -267,6 +271,11 @@ kubectl apply -f kubernetes/cilium/encryption-test.yaml
 # 4. Online Boutique behind the WAF
 
 BOUTIQUE_HOST=boutique.invincibledevops.tech ./scripts/deploy-boutique.sh
+
+The Boutique deployment is reconciled from `kubernetes/boutique/`, which pins
+the upstream Google Online Boutique manifest and applies repo-owned overlays.
+Optimization tools such as Consize should open PRs against the overlay patch
+files, not against live cluster state.
 
 # 5. Verification: the WAF must block, the storefront must serve
 

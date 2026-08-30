@@ -3,22 +3,10 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BOUTIQUE_DIR="${ROOT_DIR}/kubernetes/boutique"
-MANIFESTS_URL="https://raw.githubusercontent.com/GoogleCloudPlatform/microservices-demo/main/release/kubernetes-manifests.yaml"
 BOUTIQUE_HOST="${BOUTIQUE_HOST:-}"
 
-echo "==> Creating boutique namespace"
-kubectl apply -f "${BOUTIQUE_DIR}/namespace.yaml"
-
-echo "==> Deploying Online Boutique manifests"
-kubectl apply -f "${MANIFESTS_URL}" -n boutique
-
-echo "==> Applying repo-managed boutique overrides"
-for manifest in "${BOUTIQUE_DIR}"/*.yaml; do
-  if [[ "$(basename "${manifest}")" == "namespace.yaml" ]]; then
-    continue
-  fi
-  kubectl apply -f "${manifest}"
-done
+echo "==> Reconciling Online Boutique from repo-managed Kustomize overlay"
+kubectl apply -k "${BOUTIQUE_DIR}"
 
 echo "==> Waiting for frontend deployment"
 kubectl rollout status deployment/frontend -n boutique --timeout=5m
